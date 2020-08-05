@@ -12,7 +12,7 @@ export class Movies extends Component {
     }
     return filteredMovies.map((movie) => (
       <Movie
-        onClick={this.props.onClick}
+        onLikeClick={this.props.onLikeClick}
         movie={movie}
         onDelete={this.props.onDelete}
         key={movie._id}

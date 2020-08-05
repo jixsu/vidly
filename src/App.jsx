@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { Movies } from "./movies";
-import { getMovies } from "../services/fakeMovieService";
-import { getGenres, genres } from "../services/fakeGenreService";
-import Pagination from "./pagination";
-import ListGroup from "./listGroup";
+import { Movies } from "./components/movieTable";
+import { getMovies } from "./services/fakeMovieService";
+import { getGenres, genres } from "./services/fakeGenreService";
+import Pagination from "./components/common/pagination";
+import ListGroup from "./components/common/listGroup";
 
 class App extends Component {
   state = {
@@ -22,7 +22,7 @@ class App extends Component {
     this.state.activeGenre = "All Genres";
   }
 
-  handleClick = (movie) => {
+  handleLikeClick = (movie) => {
     const movies = [...this.state.movies];
     const index = movies.indexOf(movie);
     movies[index].liked = !this.state.movies[index].liked;
@@ -85,7 +85,7 @@ class App extends Component {
         <div className="col m-2">
           {this.handleHeader()}
           <Movies
-            onClick={this.handleClick}
+            onLikeClick={this.handleLikeClick}
             movies={this.state.activeMovies}
             page={this.state.page}
             pageSize={this.state.pageSize}

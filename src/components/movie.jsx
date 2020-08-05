@@ -1,11 +1,7 @@
 import React, { Component } from "react";
+import Like from "./common/like";
 
 export class Movie extends Component {
-  toggleHeart = () => {
-    if (this.props.movie.liked) return "fa fa-heart";
-    return "fa fa-heart-o";
-  };
-
   render() {
     return (
       <tr>
@@ -14,12 +10,7 @@ export class Movie extends Component {
         <th>{this.props.movie.numberInStock}</th>
         <th>{this.props.movie.dailyRentalRate}</th>
         <th>
-          <i
-            onClick={() => this.props.onClick(this.props.movie)}
-            style={{ cursor: "pointer" }}
-            className={this.toggleHeart()}
-            aria-hidden="true"
-          ></i>
+          <Like movie={this.props.movie} onClick={this.props.onLikeClick} />
         </th>
         <th>
           <button
