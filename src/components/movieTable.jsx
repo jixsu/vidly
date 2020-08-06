@@ -1,45 +1,47 @@
 import React, { Component } from "react";
 import { Movie } from "./movie";
+import TableHeader from "./common/tableHeader";
+import TableBody from "./common/tableBody";
+import Like from "./common/like";
 
-export class Movies extends Component {
-  filterMovies = (movies, page, pageSize) => {
-    const divisions = Math.ceil(movies.length / pageSize);
-    let filteredMovies;
-    if (divisions === page) {
-      filteredMovies = movies.slice((page - 1) * pageSize, movies.length);
-    } else {
-      filteredMovies = movies.slice((page - 1) * pageSize, page * pageSize);
-    }
-    return filteredMovies.map((movie) => (
-      <Movie
-        onLikeClick={this.props.onLikeClick}
-        movie={movie}
-        onDelete={this.props.onDelete}
-        key={movie._id}
-      />
-    ));
-  };
+export default class MovieTable extends Component {
+  column = [
+    { path: "title", label: "Title" },
+    { path: "genre.name", label: "Genre" },
+    { path: "numberInStock", label: "Stock" },
+    { path: "dailyRentalRate", label: "Rate" },
+    {
+      content: (movie) => (
+        <Like onClick={this.props.onLikeClick} movie={movie} />
+      ),
+      key: "like",
+    },
+    {
+      content: (movie) => (
+        <button
+          className="btn btn-primary btn-sm m-2"
+          onClick={() => this.props.onDelete(movie)}
+        >
+          Delete
+        </button>
+      ),
+      key: "delete",
+    },
+  ];
 
   render() {
+    const { movies } = this.props;
     return (
       <table className="table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Genre</th>
-            <th>Stock</th>
-            <th>Rate</th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
+        <TableHeader column={this.column} />
+        <TableBody column={this.column} data={movies} />
+        {/* <tbody>
           {this.filterMovies(
             this.props.movies,
             this.props.page,
             this.props.pageSize
           )}
-        </tbody>
+        </tbody> */}
       </table>
     );
   }

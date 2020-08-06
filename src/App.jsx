@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { Movies } from "./components/movieTable";
+import MovieTable from "./components/movieTable";
 import { getMovies } from "./services/fakeMovieService";
-import { getGenres, genres } from "./services/fakeGenreService";
+import { getGenres } from "./services/fakeGenreService";
 import Pagination from "./components/common/pagination";
 import ListGroup from "./components/common/listGroup";
 
@@ -9,8 +9,9 @@ class App extends Component {
   state = {
     movies: getMovies(),
     genres: getGenres(),
-    activeGenre: "",
-    activeMovies: [],
+    selectedGenre: "",
+    selectedMovies: [],
+    paginatedMovies: [],
     page: 1,
     pageSize: 4,
   };
@@ -18,8 +19,8 @@ class App extends Component {
   constructor() {
     super();
     this.state.genres.unshift({ _id: "all", name: "All Genres" });
-    this.state.activeMovies = this.state.movies;
-    this.state.activeGenre = "All Genres";
+    this.state.selectedMovies = this.state.movies;
+    this.state.selectedGenre = "All Genres";
   }
 
   handleLikeClick = (movie) => {
@@ -30,7 +31,7 @@ class App extends Component {
   };
 
   handleHeader = () => {
-    const { length } = this.state.activeMovies;
+    const { length } = this.state.selectedMovies;
     return length !== 0 ? (
       <p>Showing {length} movies in the database</p>
     ) : (
@@ -39,14 +40,14 @@ class App extends Component {
   };
 
   handleDelete = (movie) => {
-    const activeMovies = this.state.activeMovies.filter(
+    const selectedMovies = this.state.selectedMovies.filter(
       (mov) => mov._id !== movie._id
     );
     const movies = this.state.movies.filter((mov) => mov._id !== movie._id);
-    this.setState({ activeMovies, movies });
+    this.setState({ selectedMovies, movies });
   };
 
-  handlePage = (page) => {
+  handlePages = (page, movies, pageSize) => {
     if (typeof page == "number") {
       this.setState({ page });
     } else if (page === "-") {
@@ -58,17 +59,27 @@ class App extends Component {
     }
   };
 
-  handleGenre = (activeGenre) => {
-    this.setState({ activeGenre });
-    let activeMovies;
-    if (activeGenre === "All Genres") {
-      activeMovies = this.state.movies;
+  paginateMovies = (movies, page, pageSize) => {
+    const divisions = Math.ceil(movies.length / pageSize);
+    let paginatedMovies;
+    if (divisions === page) {
+      paginatedMovies = movies.slice((page - 1) * pageSize, movies.length);
     } else {
-      activeMovies = this.state.movies.filter(
-        (movie) => movie.genre.name === activeGenre
+      paginatedMovies = movies.slice((page - 1) * pageSize, page * pageSize);
+    }
+  };
+
+  handleGenre = (selectedGenre) => {
+    this.setState({ selectedGenre });
+    let selectedMovies;
+    if (selectedGenre === "All Genres") {
+      selectedMovies = this.state.movies;
+    } else {
+      selectedMovies = this.state.movies.filter(
+        (movie) => movie.genre.name === selectedGenre
       );
     }
-    this.setState({ activeMovies });
+    this.setState({ selectedMovies });
     this.setState({ page: 1 });
   };
 
@@ -78,23 +89,23 @@ class App extends Component {
         <div className="col-2 m-2">
           <ListGroup
             genres={this.state.genres}
-            activeGenre={this.state.activeGenre}
+            selectedGenre={this.state.selectedGenre}
             onClick={this.handleGenre}
           />
         </div>
         <div className="col m-2">
           {this.handleHeader()}
-          <Movies
+          <MovieTable
             onLikeClick={this.handleLikeClick}
-            movies={this.state.activeMovies}
+            movies={this.state.selectedMovies}
             page={this.state.page}
             pageSize={this.state.pageSize}
             onDelete={this.handleDelete}
           />
           <Pagination
-            onClick={this.handlePage}
+            onClick={this.handlePages}
             page={this.state.page}
-            movies={this.state.activeMovies}
+            movies={this.state.selectedMovies}
             pageSize={this.state.pageSize}
           />
         </div>

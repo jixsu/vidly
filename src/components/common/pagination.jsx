@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 
 class Pagination extends Component {
-  generatePage = (movies, currentPage, pageSize) => {
-    const numberOfMovies = movies.length;
+  generatePages = (movies, currentPage, pageSize) => {
     const divisions = Math.ceil(movies.length / pageSize);
 
     let arrayOfPages = [];
@@ -63,7 +62,7 @@ class Pagination extends Component {
                 Previous
               </a>
             </li>
-            {this.generatePage(
+            {this.generatePages(
               this.props.movies,
               this.props.page,
               this.props.pageSize

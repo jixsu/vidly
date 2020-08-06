@@ -1,7 +1,7 @@
 import React from "react";
 
 const ListGroup = (props) => {
-  const { genres, activeGenre, onClick } = props;
+  const { genres, selectedGenre, onClick } = props;
 
   return (
     <div className="list-group">
@@ -11,7 +11,7 @@ const ListGroup = (props) => {
           href="#"
           onClick={() => onClick(genre.name)}
           className={
-            genre.name === activeGenre
+            genre.name === selectedGenre
               ? "list-group-item list-group-item-action active"
               : "list-group-item list-group-item-action"
           }
