@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Movie } from "./movie";
-import TableHeader from "./common/tableHeader";
-import TableBody from "./common/tableBody";
+import Table from "./common/table/table";
 import Like from "./common/like";
+import Pagination from "./common/pagination";
+import ListGroup from "./common/listGroup";
 
 export default class MovieTable extends Component {
   column = [
@@ -29,20 +29,42 @@ export default class MovieTable extends Component {
     },
   ];
 
+  handleHeader = () => {
+    const { length } = this.props.movies;
+    return length !== 0 ? (
+      <p>Showing {length} movies in the database</p>
+    ) : (
+      <p>There are no movies in the database.</p>
+    );
+  };
+
   render() {
-    const { movies } = this.props;
+    const { page, pageSize, movies } = this.props;
     return (
-      <table className="table">
-        <TableHeader column={this.column} />
-        <TableBody column={this.column} data={movies} />
-        {/* <tbody>
-          {this.filterMovies(
-            this.props.movies,
-            this.props.page,
-            this.props.pageSize
-          )}
-        </tbody> */}
-      </table>
+      <div className="row">
+        <div className="col-2 m-2">
+          <ListGroup
+            genres={this.props.genres}
+            selectedGenre={this.props.selectedGenre}
+            onClick={this.props.onGenreClick}
+          />
+        </div>
+        <div className="col m-2">
+          {this.handleHeader()}
+          <Table
+            page={page}
+            pageSize={pageSize}
+            movies={movies}
+            column={this.column}
+          />
+          <Pagination
+            onClick={this.props.onPageClick}
+            page={this.props.page}
+            movies={this.props.movies}
+            pageSize={this.props.pageSize}
+          />
+        </div>
+      </div>
     );
   }
 }
