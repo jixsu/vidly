@@ -2,15 +2,15 @@ import React, { Component } from "react";
 
 class Like extends Component {
   toggleHeart = () => {
-    const { movie } = this.props;
-    if (movie.liked) return "fa fa-heart";
+    const { item } = this.props;
+    if (item.liked) return "fa fa-heart";
     return "fa fa-heart-o";
   };
   render() {
-    const { movie, onClick } = this.props;
+    const { item, onClick } = this.props;
     return (
       <i
-        onClick={() => onClick(movie)}
+        onClick={() => onClick(item)}
         style={{ cursor: "pointer" }}
         className={this.toggleHeart()}
         aria-hidden="true"
