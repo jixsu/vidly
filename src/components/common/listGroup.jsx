@@ -1,22 +1,22 @@
 import React from "react";
 
 const ListGroup = (props) => {
-  const { genres, selectedGenre, onClick } = props;
+  const { filters, selectedFilter, onClick } = props;
 
   return (
     <div className="list-group">
-      {genres.map((genre) => (
+      {filters.map((filter) => (
         <a
-          key={genre._id}
+          key={filter._id}
           href="#"
-          onClick={() => onClick(genre.name)}
+          onClick={() => onClick(filter.name)}
           className={
-            genre.name === selectedGenre
+            filter.name === selectedFilter
               ? "list-group-item list-group-item-action active"
               : "list-group-item list-group-item-action"
           }
         >
-          {genre.name}
+          {filter.name}
         </a>
       ))}
     </div>

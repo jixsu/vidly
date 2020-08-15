@@ -1,85 +1,64 @@
 import React, { Component } from "react";
 
 class Pagination extends Component {
-  generatePages = (movies, currentPage, pageSize) => {
-    const divisions = Math.ceil(movies.length / pageSize);
-
-    let arrayOfPages = [];
-    for (let x = 1; x < divisions + 1; x++) {
-      if (x === currentPage) {
-        arrayOfPages[x - 1] = (
-          <li key={x} className="page-item active" aria-current="page">
-            <span className="page-link">
-              {x}
-              <span className="sr-only">(current)</span>
-            </span>
-          </li>
-        );
-      } else {
-        arrayOfPages[x - 1] = (
-          <li key={x} className="page-item">
-            <a
-              className="page-link"
-              href="#"
-              onClick={() => this.props.onClick(x)}
-            >
-              {x}
-            </a>
-          </li>
-        );
-      }
-    }
-
-    return arrayOfPages;
-  };
-
-  togglePrev = () => {
-    if (this.props.page === 1) {
-      return "page-item disabled";
+  handleClassName = (page, currentPage, totalPages) => {
+    if (page === "Prev") {
+      if (currentPage === 1) return "page-item disabled";
+    } else if (page === "Next") {
+      if (currentPage === totalPages) return "page-item disabled";
+    } else if (typeof page === "number") {
+      if (page === currentPage) return "page-item active";
     }
     return "page-item";
   };
 
-  toggleNext = () => {
-    const divisions = Math.ceil(this.props.movies.length / this.props.pageSize);
-    if (this.props.page === divisions) {
-      return "page-item disabled";
+  handleButton = (page, currentPage) => {
+    const { onClick } = this.props;
+    if (page === currentPage) {
+      return <span className="page-link">{page}</span>;
     }
-    return "page-item";
+    return (
+      <a className="page-link" href="#" onClick={() => onClick(page)}>
+        {page}
+      </a>
+    );
   };
 
-  render() {
+  generatePages = (data, currentPage, pageSize) => {
+    let pageArray = ["Prev", "Next"];
+
+    const totalPages = Math.ceil(data.length / pageSize);
+
+    if (totalPages === 1) return;
+
+    for (let page = 1; page <= totalPages; page++) {
+      pageArray.splice(page, 0, page);
+    }
+
     return (
       <div>
         <nav aria-label="Page navigation example">
           <ul className="pagination">
-            <li className={this.togglePrev()}>
-              <a
-                className="page-link"
-                href="#"
-                onClick={() => this.props.onClick("-")}
+            {pageArray.map((page) => (
+              <li
+                key={page}
+                className={this.handleClassName(page, currentPage, totalPages)}
               >
-                Previous
-              </a>
-            </li>
-            {this.generatePages(
-              this.props.movies,
-              this.props.page,
-              this.props.pageSize
-            )}
-
-            <li className={this.toggleNext()}>
-              <a
-                className="page-link"
-                href="#"
-                onClick={() => this.props.onClick("+")}
-              >
-                Next
-              </a>
-            </li>
+                {this.handleButton(page, currentPage)}
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
+    );
+  };
+
+  render() {
+    const { data, currentPage, pageSize } = this.props;
+    return (
+      <React.Fragment>
+        {this.generatePages(data, currentPage, pageSize)}
+      </React.Fragment>
     );
   }
 }

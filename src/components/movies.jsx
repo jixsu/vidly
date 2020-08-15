@@ -4,13 +4,16 @@ import { getMovies } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 import Pagination from "./common/pagination";
 import ListGroup from "./common/listGroup";
+import SearchBar from "./common/searchBar";
 import _ from "lodash";
+import { Link } from "react-router-dom";
 
 class Movies extends Component {
   state = {
     movies: getMovies(),
     genres: getGenres(),
     selectedGenre: "",
+    searchQuery: "",
     page: 1,
     pageSize: 4,
     sortColumn: { path: "title", order: "asc" },
@@ -20,8 +23,7 @@ class Movies extends Component {
     super();
 
     this.state.genres.unshift({ _id: "all", name: "All Genres" });
-    this.state.selectedMovies = this.state.movies;
-    this.state.selectedGenre = "All Genres";
+    // this.state.selectedGenre = "All Genres";
   }
 
   handleLikeClick = (movie) => {
@@ -43,19 +45,21 @@ class Movies extends Component {
   handlePages = (page) => {
     if (typeof page == "number") {
       this.setState({ page });
-    } else if (page === "-") {
+    } else if (page === "Prev") {
       const newPage = this.state.page - 1;
       this.setState({ page: newPage });
-    } else if (page === "+") {
+    } else if (page === "Next") {
       const newPage = this.state.page + 1;
       this.setState({ page: newPage });
     }
   };
 
-  handleGenre = (selectedGenre) => {
-    this.setState({ selectedGenre });
+  handleSearch = (query) => {
+    this.setState({ searchQuery: query, selectedGenre: null, currentPage: 1 });
+  };
 
-    this.setState({ page: 1 });
+  handleGenre = (selectedGenre) => {
+    this.setState({ selectedGenre, page: 1, searchQuery: "" });
   };
 
   handleSort = (path) => {
@@ -81,10 +85,23 @@ class Movies extends Component {
 
   filterByGenre = (genre, movies) => {
     if (genre === "All Genres") {
+      //for some reason, (genre === "All Genres" || null) does not return true
+      return movies;
+    } else if (!genre) {
       return movies;
     } else {
       return movies.filter((movie) => movie.genre.name === genre);
     }
+  };
+
+  filterBySearch = (searchQuery, movies) => {
+    return movies.filter((movie) =>
+      movie.title.toLowerCase().startsWith(searchQuery.toLowerCase())
+    );
+  };
+
+  filterSearchOrGenre = (moviesBySearch, moviesByGenre) => {
+    return moviesBySearch ? moviesBySearch : moviesByGenre;
   };
 
   filterByPath = (column, movies) => {
@@ -106,23 +123,36 @@ class Movies extends Component {
       pageSize,
       genres,
       sortColumn,
+      searchQuery,
     } = this.state;
 
     const moviesByGenre = this.filterByGenre(selectedGenre, movies);
-    const moviesByPath = this.filterByPath(sortColumn, moviesByGenre);
+
+    const moviesBySearch = this.filterBySearch(searchQuery, movies);
+
+    const moviesAfterFilter = this.filterSearchOrGenre(
+      moviesBySearch,
+      moviesByGenre
+    );
+
+    const moviesByPath = this.filterByPath(sortColumn, moviesAfterFilter);
     const moviesByPage = this.filterByPage(page, pageSize, moviesByPath);
 
     return (
       <div className="row">
         <div className="col-2 m-2">
           <ListGroup
-            genres={genres}
-            selectedGenre={selectedGenre}
+            filters={genres}
+            selectedFilter={selectedGenre}
             onClick={this.handleGenre}
           />
         </div>
         <div className="col m-2">
-          {this.handleHeader(moviesByGenre)}
+          <Link to="/movies/new" className="btn btn-primary">
+            New Movie
+          </Link>
+          {this.handleHeader(moviesAfterFilter)}
+          <SearchBar value={searchQuery} onChange={this.handleSearch} />
           <MovieTable
             onLikeClick={this.handleLikeClick}
             movies={moviesByPage}
@@ -132,8 +162,8 @@ class Movies extends Component {
           />
           <Pagination
             onClick={this.handlePages}
-            page={page}
-            movies={moviesByGenre}
+            currentPage={page}
+            data={moviesAfterFilter}
             pageSize={pageSize}
           />
         </div>
