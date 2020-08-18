@@ -1,7 +1,8 @@
 import React from "react";
 import Form from "./common/form";
-import { getGenres } from "../services/fakeGenreService";
-import { getMovie, saveMovie } from "../services/fakeMovieService";
+import { getGenres } from "../services/genreService";
+import { getMovie, saveMovie } from "../services/movieService";
+import { toast } from "react-toastify";
 const Joi = require("@hapi/joi");
 
 class MovieForm extends Form {
@@ -24,20 +25,25 @@ class MovieForm extends Form {
     dailyRentalRate: Joi.number().max(10).min(0).label("Rate"),
   };
 
-  componentDidMount = () => {
+  async componentDidMount() {
     const { match, history } = this.props;
-    const genres = getGenres();
+    const genres = await getGenres();
     this.setState({ genres });
 
     const movieId = match.params.id;
     if (movieId === "new") return;
 
-    const movie = getMovie(movieId);
-    console.log(movie);
-    if (!movie) return history.replace("/not-found");
-
-    this.setState({ data: this.mapToViewModel(movie) });
-  };
+    try {
+      const movie = await getMovie(movieId);
+      this.setState({ data: this.mapToViewModel(movie) });
+    } catch (ex) {
+      if (ex.response.status == 404) {
+        toast.error("Movie url not found");
+        return history.replace("/not-found");
+      }
+      // if (ex.reponse && ex.response.status === 404)
+    }
+  }
 
   mapToViewModel = (movie) => {
     const data = {};
@@ -49,10 +55,10 @@ class MovieForm extends Form {
     return data;
   };
 
-  doSubmit = () => {
+  doSubmit = async () => {
     const { history } = this.props;
     const { data } = this.state;
-    saveMovie(data);
+    await saveMovie(data);
     history.push("/movies");
 
     //Call server

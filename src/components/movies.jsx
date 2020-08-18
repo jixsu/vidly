@@ -1,17 +1,18 @@
 import React, { Component } from "react";
 import MovieTable from "./movieTable";
-import { getMovies } from "../services/fakeMovieService";
-import { getGenres } from "../services/fakeGenreService";
+import { getMovies, deleteMovie } from "../services/movieService";
+import { getGenres } from "../services/genreService";
 import Pagination from "./common/pagination";
 import ListGroup from "./common/listGroup";
 import SearchBar from "./common/searchBar";
 import _ from "lodash";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 class Movies extends Component {
   state = {
-    movies: getMovies(),
-    genres: getGenres(),
+    movies: [],
+    genres: [],
     selectedGenre: "",
     searchQuery: "",
     page: 1,
@@ -19,11 +20,12 @@ class Movies extends Component {
     sortColumn: { path: "title", order: "asc" },
   };
 
-  constructor() {
-    super();
+  async componentDidMount() {
+    const genres = await getGenres();
+    genres.unshift({ _id: "all", name: "All Genres" });
 
-    this.state.genres.unshift({ _id: "all", name: "All Genres" });
-    // this.state.selectedGenre = "All Genres";
+    const movies = await getMovies();
+    this.setState({ genres, movies });
   }
 
   handleLikeClick = (movie) => {
@@ -33,13 +35,18 @@ class Movies extends Component {
     this.setState({ movies });
   };
 
-  handleDelete = (movie) => {
-    const selectedMovies = this.state.selectedMovies.filter(
-      (mov) => mov._id !== movie._id
-    );
+  handleDelete = async (movie) => {
+    const originalMovies = this.state.movies;
     const movies = this.state.movies.filter((mov) => mov._id !== movie._id);
 
-    this.setState({ selectedMovies, movies });
+    this.setState({ movies });
+
+    try {
+      await deleteMovie(movie._id);
+    } catch (ex) {
+      this.setState({ movies: originalMovies });
+      toast.error("movie has already been deleted");
+    }
   };
 
   handlePages = (page) => {
@@ -95,6 +102,7 @@ class Movies extends Component {
   };
 
   filterBySearch = (searchQuery, movies) => {
+    if (searchQuery === "") return null;
     return movies.filter((movie) =>
       movie.title.toLowerCase().startsWith(searchQuery.toLowerCase())
     );

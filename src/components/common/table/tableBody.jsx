@@ -5,7 +5,7 @@ class TableBody extends Component {
   state = {};
 
   renderCellContent = (column, item) => {
-    if (column.path === "title") {
+    if (column.path === "title" || !column.path) {
       return column.content(item);
     }
     return _.get(item, column.path);

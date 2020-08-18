@@ -5,6 +5,7 @@ import TableBody from "./tableBody";
 class Table extends Component {
   render() {
     const { movies, column, onSort, sortColumn } = this.props;
+
     return (
       <table className="table">
         <TableHeader column={column} onSort={onSort} sortColumn={sortColumn} />
