@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import Form from "./common/form";
+import * as userService from "../services/userService";
+import * as auth from "../services/authService";
 const Joi = require("@hapi/joi");
 
 class RegisterForm extends Form {
@@ -14,9 +16,19 @@ class RegisterForm extends Form {
     password: Joi.string().min(5).max(30).required().label("Password"),
   };
 
-  doSubmit = () => {
+  doSubmit = async () => {
     //Call server
-    console.log("Submitted");
+    try {
+      const response = await userService.register(this.state.data);
+      auth.loginWithJwt(response.headers["x-auth-token"]);
+      window.location = "/";
+    } catch (ex) {
+      if (ex.response && ex.response.status == 400) {
+        const errors = { ...this.state.errors };
+        errors.email = ex.response.data;
+        this.setState({ errors });
+      }
+    }
   };
 
   render() {
@@ -26,7 +38,7 @@ class RegisterForm extends Form {
         <form onSubmit={this.handleSubmit}>
           {this.renderInputField("name", "Name")}
           {this.renderInputField("email", "Email")}
-          {this.renderInputField("password", "Password")}
+          {this.renderInputField("password", "Password", "password")}
           {this.renderButton("Register")}
         </form>
       </div>

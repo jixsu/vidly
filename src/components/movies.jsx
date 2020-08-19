@@ -134,6 +134,8 @@ class Movies extends Component {
       searchQuery,
     } = this.state;
 
+    const { user } = this.props;
+
     const moviesByGenre = this.filterByGenre(selectedGenre, movies);
 
     const moviesBySearch = this.filterBySearch(searchQuery, movies);
@@ -156,9 +158,11 @@ class Movies extends Component {
           />
         </div>
         <div className="col m-2">
-          <Link to="/movies/new" className="btn btn-primary">
-            New Movie
-          </Link>
+          {user && (
+            <Link to="/movies/new" className="btn btn-primary">
+              New Movie
+            </Link>
+          )}
           {this.handleHeader(moviesAfterFilter)}
           <SearchBar value={searchQuery} onChange={this.handleSearch} />
           <MovieTable
@@ -167,6 +171,7 @@ class Movies extends Component {
             onDelete={this.handleDelete}
             onSort={this.handleSort}
             sortColumn={sortColumn}
+            user={user}
           />
           <Pagination
             onClick={this.handlePages}

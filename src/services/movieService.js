@@ -1,6 +1,5 @@
 import http from "./httpService";
 import config from "../config.json";
-import { getGenres } from "./genreService";
 
 const apiEndpoint = config.apiEndpoint + "/api/movies";
 
@@ -20,9 +19,9 @@ export async function deleteMovie(movieId) {
 
 export async function saveMovie(movie) {
   if (!movie._id) {
-    await http.post(apiEndpoint, movie);
+    return await http.post(apiEndpoint, movie);
   }
   let body = { ...movie };
   delete body._id;
-  await http.put(apiEndpoint + "/" + movie._id, body);
+  return await http.put(apiEndpoint + "/" + movie._id, body);
 }
