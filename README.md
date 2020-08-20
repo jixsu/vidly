@@ -9,10 +9,14 @@ This repo contains the front-end of the vidly application. For this project to r
 3. Follow the steps in the vidly-api-node README
 4. Clone this repo
 5. Install the dependencies by running 
+
     npm i
+    
 6. Run
+
     npm start
-   The project should be launched onto port 3000 (if it is not busy)
+    
+The project should be launched onto port 3000 (if it is not busy)
 
 
 
